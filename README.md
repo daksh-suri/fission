@@ -45,7 +45,7 @@ restaurant-reservations/
 │   ├── routes/              # Route definitions (auth, customer, admin, table, slot)
 │   ├── seed/                # Database seed scripts (admin, tables, slots)
 │   ├── services/            # Business logic (allocation, CRUD)
-│   ├── utils/               # AppError, asyncHandler, logger
+│   ├── utils/               # AppError, asyncHandler, logger, withTransaction
 │   ├── app.js               # Express app entry point
 │   └── package.json
 ├── client/
@@ -56,6 +56,7 @@ restaurant-reservations/
 │   │   ├── pages/           # Route-level pages (auth, customer, admin)
 │   │   ├── services/        # API client functions (api, reservation, slot, table)
 │   │   └── utils/           # Shared helpers (format, computeSlotTimes)
+│   ├── vercel.json            # SPA rewrite rules for Vercel
 │   ├── index.html
 │   ├── vite.config.js
 │   └── package.json
@@ -291,7 +292,7 @@ The system defines two roles: **customer** and **admin**.
 ### Authentication Flow
 1. User signs up or signs in. Server returns a signed JWT containing `id` and `role`.
 2. The client stores the token in `localStorage` and attaches it as `Authorization: Bearer <token>` on all requests.
-3. The Axios interceptor automatically attaches the token and redirects to `/signin` on 401 responses.
+3. The Axios interceptor automatically attaches the token. On 401 responses it clears credentials and dispatches a custom `auth:expired` event; `AuthContext` listens and clears state, causing `ProtectedRoute` to redirect to `/signin` via client-side navigation.
 
 ### Authorization Middleware
 - **`auth` middleware** — Verifies the JWT, attaches `{ id, role }` to `req.user`. Returns 401 if missing/invalid.
@@ -346,11 +347,14 @@ router.use(auth);                        // Any authenticated user
 
 ## Deployment
 
-### Production Build
+### Frontend (Vercel)
+Deploy the `client/` directory to Vercel. The included `vercel.json` rewrites all routes to `index.html` so React Router handles client-side navigation properly.
+
+### Backend (Render / any Node host)
 ```bash
-cd client && npm run build
+cd backend && npm start
 ```
-The built frontend is output to `client/dist/`. Configure your web server to serve it and proxy `/api` requests to the backend.
+Set all required environment variables on the hosting platform.
 
 ### Environment Variables for Production
 Ensure all production values are set in `.env`:

@@ -29,7 +29,7 @@ A full-stack web application for managing restaurant table reservations. Custome
 | **Backend** | Node.js, Express 5 |
 | **Database** | MongoDB with Mongoose 9 |
 | **Authentication** | JSON Web Tokens (JWT) with bcrypt password hashing |
-| **Security** | Helmet (HTTP headers), express-rate-limit |
+
 
 ---
 
@@ -234,7 +234,7 @@ Error responses:
 { "success": false, "message": "Error description" }
 ```
 
-HTTP status codes: 200 (success), 201 (created), 400 (validation), 401 (unauthenticated), 403 (forbidden), 404 (not found), 409 (conflict), 429 (rate limited), 500 (server error). In development mode, error responses include a `stack` field.
+HTTP status codes: 200 (success), 201 (created), 400 (validation), 401 (unauthenticated), 403 (forbidden), 404 (not found), 409 (conflict), 500 (server error). In development mode, error responses include a `stack` field.
 
 ---
 
@@ -328,6 +328,7 @@ router.use(auth);                        // Any authenticated user
 - **No reservation reminders** — Customers are not reminded of upcoming reservations.
 - **No analytics dashboard** — The admin dashboard is a minimal landing page without statistics.
 - **No client-side input sanitization** — Input validation is performed server-side only.
+- **No rate limiting** — Authentication endpoints are not rate-limited, making them vulnerable to brute force attacks.
 
 ---
 
@@ -359,8 +360,6 @@ Ensure all production values are set in `.env`:
 - `CLIENT_URL` — the frontend's production URL (for CORS)
 
 ### Security in Production
-- Helmet is enabled (secure HTTP headers).
-- Rate limiting is active (100 requests per 15 minutes per IP).
 - Stack traces are hidden from error responses when `NODE_ENV=production`.
 
 ---

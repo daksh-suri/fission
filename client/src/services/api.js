@@ -18,7 +18,7 @@ api.interceptors.response.use(
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/signin';
+      window.dispatchEvent(new CustomEvent('auth:expired'));
     }
     return Promise.reject(err);
   },

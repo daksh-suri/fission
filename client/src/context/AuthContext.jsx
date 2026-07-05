@@ -18,6 +18,15 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    const handleExpired = () => {
+      setToken(null);
+      setUser(null);
+    };
+    window.addEventListener('auth:expired', handleExpired);
+    return () => window.removeEventListener('auth:expired', handleExpired);
+  }, []);
+
   const signin = async (email, password) => {
     const { data } = await api.post('/auth/signin', { email, password });
     const { user: userData, token: newToken } = data.data;
